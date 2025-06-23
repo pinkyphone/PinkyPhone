@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PinkyPhone - Toko Online</title>
+
+  <!-- Tambahkan font lokal Super Unicorn -->
+  <style>
+    @font-face {
+      font-family: 'Super Unicorn';
+      src: url('super-unicorn.ttf') format('truetype');
+    }
+
+    * {
+      font-family: 'Super Unicorn', cursive;
+    }
+  </style>
+
+  <style>
+    body { margin: 0; padding: 0; background-color: #fff5f0; color: #333; }
+    header, footer { background-color: #ffcab0; padding: 1em; text-align: center; display: none; }
+    nav a { margin: 0 1em; text-decoration: none; color: #333; font-weight: bold; }
+    .banner { background-color: #ffd7c2; padding: 2em; text-align: center; }
+    .products, .cart, .checkout, .account, .shipping, .orderinfo, .contact, .about, #home { padding: 2em; display: none; }
+    .product-card { background: #fff; padding: 1em; margin: 1em; border-radius: 10px; box-shadow: 0 0 5px #ccc; display: inline-block; width: 200px; vertical-align: top; text-align: center; cursor: pointer; }
+    .product-card img { max-width: 100%; height: auto; border-radius: 10px; }
+    .btn { background-color: #ff8c69; color: white; padding: 0.5em 1em; border: none; border-radius: 5px; cursor: pointer; margin-top: 0.5em; }
+    .active { display: block; }
+    form input, form select, form textarea { width: 100%; padding: 0.5em; margin-bottom: 1em; border: 1px solid #ccc; border-radius: 5px; }
+    #loginPage { text-align: center; margin-top: 10%; }
+    #loginPage input { padding: 0.5em; margin: 0.5em; width: 200px; }
+
+    /* Modal Styles */
+    #productModal {
+      display: none; position: fixed; top: 0; left: 0; width: 100%;
+      height: 100%; background-color: rgba(0,0,0,0.7);
+      justify-content: center; align-items: center; z-index: 1000;
+    }
+    #productModal .modal-content {
+      background: #fff; padding: 2em; border-radius: 10px;
+      width: 300px; position: relative;
+    }
+    #productModal .close-btn {
+      position: absolute; top: 10px; right: 15px; cursor: pointer; font-size: 20px;
+    }
+    #productModal img { width: 100%; border-radius: 10px; }
+  </style>
+</head>
+
+<body>
+
+  <!-- Halaman Login -->
+  <div id="loginPage">
+    <h2>Masuk ke PinkyPhone</h2>
+    <input type="text" id="username" placeholder="Username"><br>
+    <input type="password" id="password" placeholder="Password"><br>
+    <button class="btn" onclick="login()">Login</button>
+  </div>
+
+  <header>
+    <h1>PinkyPhone</h1>
+    <nav>
+      <a href="#" onclick="showSection('home')">Beranda</a>
+      <a href="#" onclick="showSection('products')">Produk</a>
+      <a href="#" onclick="showSection('cart')">Keranjang</a>
+      <a href="#" onclick="showSection('checkout')">Pembayaran</a>
+      <a href="#" onclick="showSection('account')">Akun</a>
+      <a href="#" onclick="showSection('orderinfo')">Info Pesanan</a>
+      <a href="#" onclick="showSection('shipping')">Pengiriman</a>
+      <a href="#" onclick="showSection('contact')">Kontak</a>
+      <a href="#" onclick="showSection('about')">Tentang Kami</a>
+    </nav>
+  </header>
+
+  <section id="home">
+    <div class="banner">
+      <h2>Diskon hingga 30% untuk produk pilihan!</h2>
+    </div>
+    <div class="products">
+      <h3>Produk Unggulan & Terbaru</h3>
+      <div id="featuredProducts"></div>
+    </div>
+  </section>
+
+  <section id="products" class="products">
+    <h2>Daftar Produk</h2>
+    <div id="productList"></div>
+  </section>
+
+  <section id="cart" class="cart">
+    <h2>Keranjang Belanja</h2>
+    <div id="cartItems"></div>
+    <p>Total: <span id="totalPrice">Rp0</span></p>
+    <button class="btn" onclick="showSection('checkout')">Ke Pembayaran</button>
+  </section>
+
+  <section id="checkout" class="checkout">
+    <h2>Pembayaran</h2>
+    <form onsubmit="return confirmOrder()">
+      <label>Nama Lengkap:<br><input type="text" required></label>
+      <label>Alamat Pengiriman:<br><textarea required></textarea></label>
+      <label>Nomor HP:<br><input type="tel" required></label>
+      <label>Metode Pembayaran:<br>
+        <select required>
+          <option value="">--Pilih--</option>
+          <option>Transfer Bank</option>
+          <option>E-Wallet</option>
+          <option>COD</option>
+        </select>
+      </label>
+      <label>Opsi Pengiriman:<br>
+        <select required>
+          <option value="">--Pilih--</option>
+          <option>JNE</option>
+          <option>J&T</option>
+        </select>
+      </label>
+      <button class="btn" type="submit">Konfirmasi & Bayar</button>
+    </form>
+  </section>
+
+  <section id="account" class="account">
+    <h2>Akun Pengguna</h2>
+    <button class="btn" onclick="logout()">Logout</button>
+    <p>Riwayat Pesanan, Edit Profil, Pelacakan, dll.</p>
+  </section>
+
+  <section id="orderinfo" class="orderinfo">
+    <h2>Informasi Pesanan</h2>
+    <div id="orderDetails"><p>Belum ada pesanan.</p></div>
+  </section>
+
+  <section id="shipping" class="shipping">
+    <h2>Status Pengiriman</h2>
+    <div id="shippingDetails"><p>Belum ada pengiriman.</p></div>
+  </section>
+
+  <section id="contact" class="contact">
+    <h2>Kontak & Bantuan</h2>
+    <p>Email: pinkyphone@gmail.com</p>
+    <p>No HP: +628012983476</p>
+    <p><a href="https://wa.me/628012983476" target="_blank">Chat via WhatsApp</a></p>
+  </section>
+
+  <section id="about" class="about">
+    <h2>Tentang PinkyPhone</h2>
+    <p>Selamat datang di PinkyPhone, toko online yang didedikasikan untuk para pecinta warna pink dan aksesoris handphone yang lucu, unik, dan penuh gaya! Kami adalah brand aksesoris gadget yang menghadirkan berbagai produk bernuansa pink dengan desain menarik, kualitas terbaik, dan harga yang bersahabat.
+
+Di PinkyPhone, kamu bisa menemukan beragam aksesoris handphone yang siap mempercantik dan melindungi gadget kamu, seperti case pelindung berdesain imut, charger dengan sentuhan estetik, hiasan 3D yang unik, hingga phone strap lucu yang bikin gaya kamu makin standout. Semua koleksi kami dipilih dan dirancang khusus untuk kamu yang ingin tampil beda dan lebih ekspresif lewat warna pink yang feminin dan ceria.
+
+Kami percaya bahwa aksesoris handphone bukan hanya pelengkap, tapi juga bagian dari gaya hidup. Karena itu, kami berkomitmen untuk selalu menghadirkan produk-produk terbaik yang tak hanya fungsional, tetapi juga penuh karakter.
+
+Temukan berbagai pilihan aksesoris pink favoritmu hanya di PinkyPhone – Your Pretty Pink Gadget Buddy!.</p>
+  </section>
+
+  <footer style="display: none;">
+    <p>&copy; 2025 PinkyPhone. Semua Hak Dilindungi.</p>
+  </footer>
+
+  <!-- Modal Produk -->
+  <div id="productModal">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeModal()">&times;</span>
+      <img id="modalImg" src="" alt="" />
+      <h3 id="modalName"></h3>
+      <p id="modalDesc"></p>
+      <p id="modalPrice"></p>
+      <p>Penilaian: ⭐⭐⭐⭐☆</p>
+      <button class="btn" onclick="addToCartFromModal()">Tambah ke Keranjang</button>
+    </div>
+  </div>
+
+  <script>
+    const sections = document.querySelectorAll('section');
+    const products = [
+      { id: 1, name: "Case iPhone Peach Glow", desc: "Softcase iPhone motif peach dengan glitter bening, lentur, ringan, dan melindungi dari goresan.", price: 40000, discount: 5000, img: "case.jpg" },
+      { id: 2, name: "Phonestrap Lucu", desc: "Phonestrap karakter lucu untuk aksesoris dan gantungan HP.", price: 30000, discount: 5000, img: "Phonestrap.jpg" },
+      { id: 3, name: "Pelindung Charger One Set", desc: "Pelindung kabel charger lucu isi lengkap: kepala charger, kabel, dan pelindung kepala kabel.", price: 45000, discount: 5000, img: "pelindung casan.jpg" },
+      { id: 4, name: "Ring Stand Premium", desc: "Ring stand HP metal elegan, nyaman di genggam dan bisa digunakan sebagai penyangga.", price: 20000, discount: 2000, img: "ring stand.jpg" },
+      { id: 5, name: "Hiasan 3D Karakter", desc: "Aksesoris hiasan tempel 3D karakter lucu untuk case atau barang favoritmu.", price: 25000, discount: 5000, img: "3d.jpg" },
+    ];
+
+    const cart = [];
+    let selectedProductId = null;
+
+    function showSection(id) {
+      sections.forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    function login() {
+      const user = document.getElementById("username").value;
+      const pass = document.getElementById("password").value;
+      if (user && pass) {
+        document.getElementById("loginPage").style.display = 'none';
+        document.querySelector("header").style.display = 'block';
+        document.querySelector("footer").style.display = 'block';
+
+        sections.forEach(s => s.classList.remove('active'));
+        document.getElementById("home").classList.add('active');
+        renderProducts();
+      } else {
+        alert("Masukkan username dan password!");
+      }
+    }
+
+    function logout() {
+      location.reload();
+    }
+
+    function renderProducts() {
+      const list = document.getElementById("productList");
+      const featured = document.getElementById("featuredProducts");
+      list.innerHTML = featured.innerHTML = '';
+      products.forEach(p => {
+        const html = `
+          <div class="product-card" onclick="showProductModal(${p.id})">
+            <img src="${p.img}" alt="${p.name}" />
+            <h4>${p.name}</h4>
+            <p>${p.desc}</p>
+            <p>Harga: Rp${p.price - p.discount} <s>Rp${p.price}</s></p>
+          </div>`;
+        list.innerHTML += html;
+        if (p.id <= 3) featured.innerHTML += html;
+      });
+    }
+
+    function addToCart(id) {
+      const product = products.find(p => p.id === id);
+      const item = cart.find(i => i.id === id);
+      if (item) item.qty++;
+      else cart.push({ ...product, qty: 1 });
+      alert("Ditambahkan ke keranjang!");
+      renderCart();
+    }
+
+    function addToCartFromModal() {
+      if (selectedProductId) addToCart(selectedProductId);
+      closeModal();
+    }
+
+    function renderCart() {
+      const container = document.getElementById("cartItems");
+      const total = document.getElementById("totalPrice");
+      container.innerHTML = '';
+      let totalPrice = 0;
+      cart.forEach(item => {
+        const sub = item.qty * (item.price - item.discount);
+        totalPrice += sub;
+        container.innerHTML += `<p>${item.name} x ${item.qty} = Rp${sub}</p>`;
+      });
+      total.textContent = `Rp${totalPrice}`;
+    }
+
+    function confirmOrder() {
+      alert("Pesanan berhasil dikonfirmasi dan sedang dikemas!");
+      document.getElementById('orderDetails').innerHTML = `<p>Nomor Pesanan: #PEACH12345</p><p>Status Pembayaran: <strong>Lunas</strong></p><p>Status Proses: <strong>Sedang Dikemas</strong></p>`;
+      document.getElementById('shippingDetails').innerHTML = `<p><strong>Status:</strong> Dalam Pengiriman</p><p>Estimasi pengiriman 2-4 hari kerja via JNE / J&T.</p><p>Nomor Resi: <strong>JNE1234567890</strong></p>`;
+      cart.length = 0;
+      renderCart();
+      showSection('orderinfo');
+      return false;
+    }
+
+    function showProductModal(id) {
+      const p = products.find(prod => prod.id === id);
+      selectedProductId = id;
+      document.getElementById("modalImg").src = p.img;
+      document.getElementById("modalName").textContent = p.name;
+      document.getElementById("modalDesc").textContent = p.desc;
+      document.getElementById("modalPrice").innerHTML = `Harga: Rp${p.price - p.discount} <s>Rp${p.price}</s>`;
+      document.getElementById("productModal").style.display = "flex";
+    }
+
+    function closeModal() {
+      document.getElementById("productModal").style.display = "none";
+    }
+  </script>
+</body>
+</html>
